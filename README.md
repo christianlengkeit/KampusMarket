@@ -23,6 +23,9 @@ The application allows users to log in, browse products, search and filter produ
 - Product list using FlatList
 - API integration with DummyJSON
 - Loading and error states for API requests
+- Password visibility toggle
+- Light and dark mode support
+- Wishlist management with add, remove, and clear actions
 
 ## Screens
 
@@ -108,3 +111,4 @@ There should be a file at the Groundfolder:
 
 .gitignore
 ```
+The application also includes additional UI improvements such as dark mode and password visibility toggle.
