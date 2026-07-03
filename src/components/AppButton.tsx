@@ -1,4 +1,5 @@
 import { Pressable, StyleSheet, Text } from 'react-native';
+import { useAppTheme } from '../context/ThemeContext';
 
 type AppButtonProps = {
   title: string;
@@ -13,28 +14,34 @@ export default function AppButton({
   variant = 'primary',
   disabled = false,
 }: AppButtonProps) {
-  const buttonVariantStyle =
-    variant === 'danger'
-      ? styles.dangerButton
-      : variant === 'secondary'
-        ? styles.secondaryButton
-        : styles.primaryButton;
+  const { colors } = useAppTheme();
 
-  const textVariantStyle =
-    variant === 'secondary' ? styles.secondaryButtonText : styles.lightButtonText;
+  const backgroundColor =
+    variant === 'danger'
+      ? colors.danger
+      : variant === 'secondary'
+        ? colors.primarySoft
+        : colors.primary;
+
+  const borderColor = variant === 'secondary' ? colors.primary : backgroundColor;
+
+  const textColor = variant === 'secondary' ? colors.primary : '#ffffff';
 
   return (
     <Pressable
       disabled={disabled}
       style={({ pressed }) => [
         styles.button,
-        buttonVariantStyle,
+        {
+          backgroundColor,
+          borderColor,
+        },
         pressed && !disabled ? styles.pressedButton : null,
         disabled ? styles.disabledButton : null,
       ]}
       onPress={onPress}
     >
-      <Text style={[styles.buttonText, textVariantStyle]}>{title}</Text>
+      <Text style={[styles.buttonText, { color: textColor }]}>{title}</Text>
     </Pressable>
   );
 }
@@ -46,17 +53,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 16,
-  },
-  primaryButton: {
-    backgroundColor: '#2563eb',
-  },
-  secondaryButton: {
-    backgroundColor: '#eff6ff',
     borderWidth: 1,
-    borderColor: '#bfdbfe',
-  },
-  dangerButton: {
-    backgroundColor: '#dc2626',
   },
   pressedButton: {
     opacity: 0.75,
@@ -67,11 +64,5 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 16,
     fontWeight: '700',
-  },
-  lightButtonText: {
-    color: '#ffffff',
-  },
-  secondaryButtonText: {
-    color: '#2563eb',
   },
 });

@@ -14,14 +14,27 @@ import { useNavigation } from '@react-navigation/native';
 import AppButton from '../components/AppButton';
 import AppInput from '../components/AppInput';
 import ProductCard from '../components/ProductCard';
+import { useAppTheme } from '../context/ThemeContext';
 import { getProducts } from '../services/api';
 import type { Product } from '../types/product';
 import type { RootStackParamList } from '../types/navigation';
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
+function formatCategoryName(category: string) {
+  if (category === 'All') {
+    return 'All';
+  }
+
+  return category
+    .split('-')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 export default function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const { colors } = useAppTheme();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,27 +84,35 @@ export default function HomeScreen() {
 
   if (isLoading) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.loadingText}>Loading products...</Text>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.mutedText }]}>
+          Loading products...
+        </Text>
       </View>
     );
   }
 
   if (errorMessage) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorTitle}>Something went wrong</Text>
-        <Text style={styles.errorText}>{errorMessage}</Text>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorTitle, { color: colors.text }]}>
+          Something went wrong
+        </Text>
+        <Text style={[styles.errorText, { color: colors.mutedText }]}>
+          {errorMessage}
+        </Text>
         <AppButton title="Try Again" onPress={loadProducts} />
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.screenTitle}>Product Catalog</Text>
-      <Text style={styles.screenSubtitle}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[styles.screenTitle, { color: colors.text }]}>
+        Product Catalog
+      </Text>
+      <Text style={[styles.screenSubtitle, { color: colors.mutedText }]}>
         Browse second-hand products for students.
       </Text>
 
@@ -102,36 +123,48 @@ export default function HomeScreen() {
         onChangeText={setSearchQuery}
       />
 
-      <Text style={styles.filterTitle}>Categories</Text>
+      <Text style={[styles.filterTitle, { color: colors.text }]}>Categories</Text>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.categoryList}
-      >
-        {categories.map((category) => {
-          const isActive = selectedCategory === category;
+      <View style={styles.categoryWrapper}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryList}
+        >
+          {categories.map((category) => {
+            const isActive = selectedCategory === category;
 
-          return (
-            <Pressable
-              key={category}
-              style={[styles.categoryButton, isActive && styles.categoryButtonActive]}
-              onPress={() => setSelectedCategory(category)}
-            >
-              <Text
+            return (
+              <Pressable
+                key={category}
                 style={[
-                  styles.categoryButtonText,
-                  isActive && styles.categoryButtonTextActive,
+                  styles.categoryButton,
+                  {
+                    backgroundColor: isActive ? colors.primary : colors.card,
+                    borderColor: isActive ? colors.primary : colors.border,
+                  },
                 ]}
+                onPress={() => setSelectedCategory(category)}
               >
-                {category}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
+                <Text
+                  style={[
+                    styles.categoryButtonText,
+                    {
+                      color: isActive ? '#ffffff' : colors.text,
+                    },
+                  ]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {formatCategoryName(category)}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </ScrollView>
+      </View>
 
-      <Text style={styles.resultText}>
+      <Text style={[styles.resultText, { color: colors.mutedText }]}>
         {filteredProducts.length} products found
       </Text>
 
@@ -147,9 +180,19 @@ export default function HomeScreen() {
           />
         )}
         ListEmptyComponent={
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyTitle}>No products found</Text>
-            <Text style={styles.emptyText}>
+          <View
+            style={[
+              styles.emptyContainer,
+              {
+                backgroundColor: colors.card,
+                borderColor: colors.border,
+              },
+            ]}
+          >
+            <Text style={[styles.emptyTitle, { color: colors.text }]}>
+              No products found
+            </Text>
+            <Text style={[styles.emptyText, { color: colors.mutedText }]}>
               Try another search keyword or category.
             </Text>
           </View>
@@ -164,55 +207,52 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#eff6ff',
     paddingHorizontal: 16,
     paddingTop: 16,
   },
   screenTitle: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#111827',
     marginBottom: 4,
   },
   screenSubtitle: {
     fontSize: 14,
-    color: '#6b7280',
     marginBottom: 16,
   },
   filterTitle: {
     fontSize: 14,
     fontWeight: '700',
-    color: '#111827',
     marginBottom: 8,
   },
+  categoryWrapper: {
+    height: 50,
+    marginBottom: 12,
+  },
   categoryList: {
-    paddingBottom: 12,
+    height: 50,
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
+    paddingRight: 16,
   },
   categoryButton: {
-    backgroundColor: '#ffffff',
-    paddingVertical: 8,
-    paddingHorizontal: 14,
+    height: 38,
+    minWidth: 86,
+    maxWidth: 150,
+    paddingHorizontal: 16,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: '#d1d5db',
-  },
-  categoryButtonActive: {
-    backgroundColor: '#2563eb',
-    borderColor: '#2563eb',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   categoryButtonText: {
-    color: '#374151',
     fontSize: 13,
-    fontWeight: '600',
-    textTransform: 'capitalize',
-  },
-  categoryButtonTextActive: {
-    color: '#ffffff',
+    fontWeight: '800',
+    includeFontPadding: false,
+    textAlignVertical: 'center',
   },
   resultText: {
     fontSize: 13,
-    color: '#6b7280',
     marginBottom: 12,
   },
   listContent: {
@@ -220,44 +260,38 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flex: 1,
-    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
   },
   loadingText: {
     fontSize: 15,
-    color: '#6b7280',
     marginTop: 12,
   },
   errorTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#111827',
     marginBottom: 8,
   },
   errorText: {
     fontSize: 14,
-    color: '#6b7280',
     textAlign: 'center',
     marginBottom: 12,
   },
   emptyContainer: {
-    backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 24,
     alignItems: 'center',
     marginTop: 16,
+    borderWidth: 1,
   },
   emptyTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#111827',
     marginBottom: 6,
   },
   emptyText: {
     fontSize: 14,
-    color: '#6b7280',
     textAlign: 'center',
   },
 });

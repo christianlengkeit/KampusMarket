@@ -1,5 +1,6 @@
-import { StyleSheet, Text } from 'react-native'
+import { StyleSheet, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import type { Theme } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -10,6 +11,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import ProductDetailScreen from '../screens/ProductDetailScreen';
 
 import { AuthProvider, useAuth } from '../context/AuthContext';
+import { ThemeProvider, useAppTheme } from '../context/ThemeContext';
 import { WishlistProvider } from '../context/WishlistContext';
 import type { MainTabParamList, RootStackParamList } from '../types/navigation';
 
@@ -20,16 +22,18 @@ type TabIconProps = {
   icon: string;
 };
 
-function TabIcon({ icon}: TabIconProps) {
+function TabIcon({ icon }: TabIconProps) {
   return <Text style={styles.tabIcon}>{icon}</Text>;
 }
 
 function MainTabs() {
+  const { colors } = useAppTheme();
+
   return (
     <Tab.Navigator
       screenOptions={{
-        tabBarActiveTintColor: '#2563eb',
-        tabBarInactiveTintColor: '#6b7280',
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.mutedText,
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '700',
@@ -38,24 +42,24 @@ function MainTabs() {
           height: 68,
           paddingTop: 8,
           paddingBottom: 10,
-          backgroundColor: '#ffffff',
+          backgroundColor: colors.card,
           borderTopWidth: 1,
-          borderTopColor: '#e5e7eb',
+          borderTopColor: colors.border,
         },
         headerTitleAlign: 'center',
         headerStyle: {
-          backgroundColor: '#ffffff',
+          backgroundColor: colors.card,
         },
         headerTitleStyle: {
           fontSize: 18,
           fontWeight: '800',
-          color: '#111827',
+          color: colors.text,
         },
         tabBarHideOnKeyboard: true,
       }}
     >
       <Tab.Screen
-        name='Home'
+        name="Home"
         component={HomeScreen}
         options={{
           title: 'Home',
@@ -67,7 +71,7 @@ function MainTabs() {
       />
 
       <Tab.Screen
-        name='CartWishlist'
+        name="CartWishlist"
         component={CartWishlistScreen}
         options={{
           title: 'Cart / Wishlist',
@@ -95,9 +99,21 @@ function MainTabs() {
 
 function RootNavigator() {
   const { isLoggedIn } = useAuth();
+  const { colors } = useAppTheme();
 
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: colors.card,
+        },
+        headerTitleStyle: {
+          color: colors.text,
+          fontWeight: '800',
+        },
+        headerTintColor: colors.primary,
+      }}
+    >
       {!isLoggedIn ? (
         <Stack.Screen
           name="Login"
@@ -107,7 +123,7 @@ function RootNavigator() {
       ) : (
         <>
           <Stack.Screen
-            name="MainTabs" 
+            name="MainTabs"
             component={MainTabs}
             options={{ headerShown: false }}
           />
@@ -123,15 +139,55 @@ function RootNavigator() {
   );
 }
 
-export default function AppNavigator() {
+function NavigationShell() {
+  const { colors, isDarkMode } = useAppTheme();
+
+  const navigationTheme: Theme = {
+    dark: isDarkMode,
+    colors: {
+      primary: colors.primary,
+      background: colors.background,
+      card: colors.card,
+      text: colors.text,
+      border: colors.border,
+      notification: colors.danger,
+    },
+    fonts: {
+      regular: {
+        fontFamily: 'System',
+        fontWeight: '400',
+      },
+      medium: {
+        fontFamily: 'System',
+        fontWeight: '500',
+      },
+      bold: {
+        fontFamily: 'System',
+        fontWeight: '700',
+      },
+      heavy: {
+        fontFamily: 'System',
+        fontWeight: '800',
+      },
+    },
+  };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navigationTheme}>
       <AuthProvider>
         <WishlistProvider>
           <RootNavigator />
         </WishlistProvider>
       </AuthProvider>
     </NavigationContainer>
+  );
+}
+
+export default function AppNavigator() {
+  return (
+    <ThemeProvider>
+      <NavigationShell />
+    </ThemeProvider>
   );
 }
 

@@ -1,11 +1,13 @@
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import AppButton from '../components/AppButton';
 import { useAuth } from '../context/AuthContext';
+import { useAppTheme } from '../context/ThemeContext';
 import { useWishlist } from '../context/WishlistContext';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuth();
+  const { colors, isDarkMode, toggleTheme } = useAppTheme();
   const { wishlistItems, clearWishlist } = useWishlist();
 
   function handleLogout() {
@@ -26,32 +28,55 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <View style={styles.card}>
-        <View style={styles.avatar}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.card, { backgroundColor: colors.card }]}>
+        <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
           <Text style={styles.avatarText}>
             {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
           </Text>
         </View>
 
-        <Text style={styles.title}>Profile</Text>
+        <Text style={[styles.title, { color: colors.text }]}>Profile</Text>
 
-        <View style={styles.infoBox}>
-          <Text style={styles.label}>Name</Text>
-          <Text style={styles.value}>{user?.name}</Text>
+        <Pressable
+          style={[
+            styles.themeToggle,
+            {
+              backgroundColor: colors.cardSoft,
+              borderColor: colors.border,
+            },
+          ]}
+          onPress={toggleTheme}
+        >
+          <Text style={[styles.themeToggleText, { color: colors.text }]}>
+            {isDarkMode ? '🌙 Dark Mode' : '☀️ Light Mode'}
+          </Text>
+
+          <Text style={[styles.themeToggleAction, { color: colors.primary }]}>
+            Switch
+          </Text>
+        </Pressable>
+
+        <View style={[styles.infoBox, { backgroundColor: colors.cardSoft }]}>
+          <Text style={[styles.label, { color: colors.mutedText }]}>Name</Text>
+          <Text style={[styles.value, { color: colors.text }]}>{user?.name}</Text>
         </View>
 
-        <View style={styles.infoBox}>
-          <Text style={styles.label}>Email</Text>
-          <Text style={styles.value}>{user?.email}</Text>
+        <View style={[styles.infoBox, { backgroundColor: colors.cardSoft }]}>
+          <Text style={[styles.label, { color: colors.mutedText }]}>Email</Text>
+          <Text style={[styles.value, { color: colors.text }]}>{user?.email}</Text>
         </View>
 
-        <View style={styles.infoBox}>
-          <Text style={styles.label}>Saved Products</Text>
-          <Text style={styles.value}>{wishlistItems.length}</Text>
+        <View style={[styles.infoBox, { backgroundColor: colors.cardSoft }]}>
+          <Text style={[styles.label, { color: colors.mutedText }]}>
+            Saved Products
+          </Text>
+          <Text style={[styles.value, { color: colors.text }]}>
+            {wishlistItems.length}
+          </Text>
         </View>
 
-        <Text style={styles.note}>
+        <Text style={[styles.note, { color: colors.mutedText }]}>
           This profile uses simulated login data for the UAS project.
         </Text>
 
@@ -64,12 +89,10 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#eff6ff',
     justifyContent: 'center',
     padding: 20,
   },
   card: {
-    backgroundColor: '#ffffff',
     borderRadius: 22,
     padding: 22,
     shadowColor: '#000000',
@@ -81,7 +104,6 @@ const styles = StyleSheet.create({
     width: 84,
     height: 84,
     borderRadius: 42,
-    backgroundColor: '#2563eb',
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
@@ -95,29 +117,41 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#111827',
     textAlign: 'center',
     marginBottom: 18,
   },
+  themeToggle: {
+    borderWidth: 1,
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  themeToggleText: {
+    fontSize: 15,
+    fontWeight: '800',
+  },
+  themeToggleAction: {
+    fontSize: 14,
+    fontWeight: '800',
+  },
   infoBox: {
-    backgroundColor: '#f9fafb',
     borderRadius: 14,
     padding: 14,
     marginBottom: 10,
   },
   label: {
     fontSize: 13,
-    color: '#6b7280',
     marginBottom: 4,
   },
   value: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#111827',
   },
   note: {
     fontSize: 13,
-    color: '#6b7280',
     textAlign: 'center',
     lineHeight: 19,
     marginTop: 8,

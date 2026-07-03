@@ -3,6 +3,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 
 import ProductCard from '../components/ProductCard';
+import { useAppTheme } from '../context/ThemeContext';
 import { useWishlist } from '../context/WishlistContext';
 import type { RootStackParamList } from '../types/navigation';
 
@@ -10,13 +11,16 @@ type CartWishlistNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 export default function CartWishlistScreen() {
   const navigation = useNavigation<CartWishlistNavigationProp>();
+  const { colors } = useAppTheme();
   const { wishlistItems, removeFromWishlist, clearWishlist } = useWishlist();
 
   if (wishlistItems.length === 0) {
     return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyTitle}>Your Wishlist is empty</Text>
-        <Text style={styles.emptyText}>
+      <View style={[styles.emptyContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.emptyTitle, { color: colors.text }]}>
+          Your Wishlist is empty
+        </Text>
+        <Text style={[styles.emptyText, { color: colors.mutedText }]}>
           Open a product and tap “Add to Wishlist” to save it here.
         </Text>
       </View>
@@ -24,17 +28,30 @@ export default function CartWishlistScreen() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.headerRow}>
         <View>
-          <Text style={styles.title}>Cart / Wishlist</Text>
-          <Text style={styles.subtitle}>
+          <Text style={[styles.title, { color: colors.text }]}>
+            Cart / Wishlist
+          </Text>
+          <Text style={[styles.subtitle, { color: colors.mutedText }]}>
             {wishlistItems.length} saved products
           </Text>
         </View>
 
-        <Pressable style={styles.clearButton} onPress={clearWishlist}>
-          <Text style={styles.clearButtonText}>Clear</Text>
+        <Pressable
+          style={[
+            styles.clearButton,
+            {
+              backgroundColor: colors.dangerSoft,
+              borderColor: colors.danger,
+            },
+          ]}
+          onPress={clearWishlist}
+        >
+          <Text style={[styles.clearButtonText, { color: colors.danger }]}>
+            Clear
+          </Text>
         </Pressable>
       </View>
 
@@ -51,10 +68,18 @@ export default function CartWishlistScreen() {
             />
 
             <Pressable
-              style={styles.removeButton}
+              style={[
+                styles.removeButton,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: colors.danger,
+                },
+              ]}
               onPress={() => removeFromWishlist(item.id)}
             >
-              <Text style={styles.removeButtonText}>Remove from Wishlist</Text>
+              <Text style={[styles.removeButtonText, { color: colors.danger }]}>
+                Remove from Wishlist
+              </Text>
             </Pressable>
           </View>
         )}
@@ -68,7 +93,6 @@ export default function CartWishlistScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#eff6ff',
     paddingHorizontal: 16,
     paddingTop: 16,
   },
@@ -81,21 +105,18 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: '800',
-    color: '#111827',
   },
   subtitle: {
     fontSize: 14,
-    color: '#6b7280',
     marginTop: 2,
   },
   clearButton: {
-    backgroundColor: '#fee2e2',
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 999,
+    borderWidth: 1,
   },
   clearButtonText: {
-    color: '#dc2626',
     fontSize: 13,
     fontWeight: '700',
   },
@@ -106,9 +127,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   removeButton: {
-    backgroundColor: '#ffffff',
     borderWidth: 1,
-    borderColor: '#fecaca',
     borderRadius: 12,
     paddingVertical: 10,
     alignItems: 'center',
@@ -116,13 +135,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   removeButtonText: {
-    color: '#dc2626',
     fontSize: 14,
     fontWeight: '700',
   },
   emptyContainer: {
     flex: 1,
-    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
@@ -130,13 +147,11 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#111827',
     marginBottom: 8,
     textAlign: 'center',
   },
   emptyText: {
     fontSize: 15,
-    color: '#6b7280',
     textAlign: 'center',
     lineHeight: 22,
   },

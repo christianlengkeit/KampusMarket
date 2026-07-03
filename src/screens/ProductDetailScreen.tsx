@@ -11,6 +11,7 @@ import {
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import AppButton from '../components/AppButton';
+import { useAppTheme } from '../context/ThemeContext';
 import { useWishlist } from '../context/WishlistContext';
 import { getProductById } from '../services/api';
 import type { Product } from '../types/product';
@@ -23,7 +24,7 @@ type ProductDetailScreenProps = NativeStackScreenProps<
 
 export default function ProductDetailScreen({ route }: ProductDetailScreenProps) {
   const { productId } = route.params;
-
+  const { colors } = useAppTheme();
   const { addToWishlist, isInWishlist } = useWishlist();
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -50,18 +51,24 @@ export default function ProductDetailScreen({ route }: ProductDetailScreenProps)
 
   if (isLoading) {
     return (
-      <View style={styles.centerContainer}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.loadingText}>Loading product details...</Text>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={[styles.loadingText, { color: colors.mutedText }]}>
+          Loading product details...
+        </Text>
       </View>
     );
   }
 
   if (errorMessage || !product) {
     return (
-      <View style={styles.centerContainer}>
-        <Text style={styles.errorTitle}>Something went wrong</Text>
-        <Text style={styles.errorText}>{errorMessage}</Text>
+      <View style={[styles.centerContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.errorTitle, { color: colors.text }]}>
+          Something went wrong
+        </Text>
+        <Text style={[styles.errorText, { color: colors.mutedText }]}>
+          {errorMessage}
+        </Text>
         <AppButton title="Try Again" onPress={loadProductDetails} />
       </View>
     );
@@ -84,28 +91,53 @@ export default function ProductDetailScreen({ route }: ProductDetailScreenProps)
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={styles.content}
+    >
       <Image source={{ uri: product.thumbnail }} style={styles.image} />
 
-      <View style={styles.card}>
-        <Text style={styles.category}>{product.category}</Text>
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: colors.card,
+            borderColor: colors.border,
+          },
+        ]}
+      >
+        <Text style={[styles.category, { color: colors.primary }]}>
+          {product.category}
+        </Text>
 
-        <Text style={styles.title}>{product.title}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>
+          {product.title}
+        </Text>
 
         <View style={styles.row}>
-          <Text style={styles.price}>${product.price}</Text>
-          <Text style={styles.rating}>⭐ {product.rating}</Text>
+          <Text style={[styles.price, { color: colors.success }]}>
+            ${product.price}
+          </Text>
+          <Text style={[styles.rating, { color: colors.mutedText }]}>
+            ⭐ {product.rating}
+          </Text>
         </View>
 
-        <Text style={styles.sectionTitle}>Description</Text>
-        <Text style={styles.description}>{product.description}</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>
+          Description
+        </Text>
+        <Text style={[styles.description, { color: colors.mutedText }]}>
+          {product.description}
+        </Text>
 
-        <View style={styles.infoBox}>
-          <Text style={styles.infoText}>Stock: {product.stock}</Text>
-          <Text style={styles.infoText}>
+        <View style={[styles.infoBox, { backgroundColor: colors.cardSoft }]}>
+          <Text style={[styles.infoText, { color: colors.text }]}>
+            Stock: {product.stock}
+          </Text>
+          <Text style={[styles.infoText, { color: colors.text }]}>
             Discount: {product.discountPercentage}%
           </Text>
-          <Text style={styles.infoText}>
+          <Text style={[styles.infoText, { color: colors.text }]}>
             Brand: {product.brand ? product.brand : 'No brand information'}
           </Text>
         </View>
@@ -123,7 +155,6 @@ export default function ProductDetailScreen({ route }: ProductDetailScreenProps)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#eff6ff',
   },
   content: {
     padding: 16,
@@ -137,9 +168,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   card: {
-    backgroundColor: '#ffffff',
     borderRadius: 20,
     padding: 18,
+    borderWidth: 1,
     shadowColor: '#000000',
     shadowOpacity: 0.08,
     shadowRadius: 12,
@@ -147,7 +178,6 @@ const styles = StyleSheet.create({
   },
   category: {
     fontSize: 13,
-    color: '#2563eb',
     fontWeight: '700',
     textTransform: 'capitalize',
     marginBottom: 8,
@@ -155,7 +185,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: '800',
-    color: '#111827',
     marginBottom: 12,
   },
   row: {
@@ -167,56 +196,46 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 24,
     fontWeight: '800',
-    color: '#16a34a',
   },
   rating: {
     fontSize: 15,
-    color: '#6b7280',
   },
   sectionTitle: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#111827',
     marginBottom: 8,
   },
   description: {
     fontSize: 15,
-    color: '#4b5563',
     lineHeight: 22,
     marginBottom: 18,
   },
   infoBox: {
-    backgroundColor: '#f9fafb',
     borderRadius: 14,
     padding: 14,
     marginBottom: 4,
   },
   infoText: {
     fontSize: 14,
-    color: '#374151',
     marginBottom: 6,
   },
   centerContainer: {
     flex: 1,
-    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
   },
   loadingText: {
     fontSize: 15,
-    color: '#6b7280',
     marginTop: 12,
   },
   errorTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: '#111827',
     marginBottom: 8,
   },
   errorText: {
     fontSize: 14,
-    color: '#6b7280',
     textAlign: 'center',
     marginBottom: 12,
   },

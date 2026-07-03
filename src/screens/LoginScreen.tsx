@@ -3,6 +3,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,9 +12,11 @@ import {
 import AppButton from '../components/AppButton';
 import AppInput from '../components/AppInput';
 import  { useAuth } from '../context/AuthContext';
+import { useAppTheme } from '../context/ThemeContext';
 
 export default function LoginScreen() {
   const { login } = useAuth();
+  const { colors } = useAppTheme();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -22,6 +25,8 @@ export default function LoginScreen() {
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   function validateForm() {
     let isValid = true;
@@ -71,16 +76,16 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView
-      style={styles.keyboardContainer}
+      style={[styles.keyboardContainer, { backgroundColor: colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.card}>
-          <Text style={styles.title}>KampusMarket</Text>
-          <Text style={styles.subtitle}>Student Second-Hand Marketplace</Text>
+        <View style={[styles.card, {backgroundColor: colors.card}]}>
+          <Text style={[styles.title, { color: colors.text }]}>KampusMarket</Text>
+          <Text style={[styles.subtitle, { color: colors.mutedText }]}>Student Second-Hand Marketplace</Text>
 
           <AppInput
             label="Name"
@@ -105,13 +110,23 @@ export default function LoginScreen() {
             placeholder="Enter your password"
             value={password}
             onChangeText={setPassword}
-            secureTextEntry
+            secureTextEntry={!isPasswordVisible}
             error={passwordError}
+            rightElement={
+              <Pressable
+                style={[styles.passwordToggle, { backgroundColor: colors.primarySoft }]}
+                onPress={() => setIsPasswordVisible((currentValue) => !currentValue)}
+              >
+                <Text style={[styles.passwordToggleText, { color: colors.primary }]}>
+                  {isPasswordVisible ? 'Hide' : 'Show'}
+                </Text>
+              </Pressable>
+            }
           />
 
           <AppButton title="Login" onPress={handleLogin} />
 
-          <Text style={styles.footerText}>
+          <Text style={[styles.footerText, { color: colors.mutedText }]}>
             Use this form to simulate account registration and login.
           </Text>
         </View>
@@ -158,5 +173,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 16,
     lineHeight: 18,
+  },
+  passwordToggle: {
+    minWidth: 58,
+    height: 34,
+    borderRadius: 999,
+    backgroundColor: 'eff6ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  passwordToggleText: {
+    color: '#2563eb',
+    fontSize: 14,
+    fontWeight: '800',
   },
 });

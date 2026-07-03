@@ -1,4 +1,5 @@
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useAppTheme } from '../context/ThemeContext';
 import type { Product } from '../types/product';
 
 type ProductCardProps = {
@@ -7,23 +8,43 @@ type ProductCardProps = {
 };
 
 export default function ProductCard({ product, onPress }: ProductCardProps) {
+  const { colors } = useAppTheme();
+
   return (
-    <Pressable style={styles.card} onPress={onPress}>
+    <Pressable
+      style={[
+        styles.card,
+        {
+          backgroundColor: colors.card,
+          borderColor: colors.border,
+        },
+      ]}
+      onPress={onPress}
+    >
       <Image source={{ uri: product.thumbnail }} style={styles.image} />
 
       <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={2}>
+        <Text style={[styles.title, { color: colors.text }]} numberOfLines={2}>
           {product.title}
         </Text>
 
-        <Text style={styles.category}>{product.category}</Text>
+        <Text style={[styles.category, { color: colors.primary }]}>
+          {product.category}
+        </Text>
 
         <View style={styles.row}>
-          <Text style={styles.price}>${product.price}</Text>
-          <Text style={styles.rating}>⭐ {product.rating}</Text>
+          <Text style={[styles.price, { color: colors.success }]}>
+            ${product.price}
+          </Text>
+          <Text style={[styles.rating, { color: colors.mutedText }]}>
+            ⭐ {product.rating}
+          </Text>
         </View>
 
-        <Text style={styles.description} numberOfLines={2}>
+        <Text
+          style={[styles.description, { color: colors.mutedText }]}
+          numberOfLines={2}
+        >
           {product.description}
         </Text>
       </View>
@@ -34,10 +55,10 @@ export default function ProductCard({ product, onPress }: ProductCardProps) {
 const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: '#ffffff',
     borderRadius: 16,
     padding: 12,
     marginBottom: 14,
+    borderWidth: 1,
     shadowColor: '#000000',
     shadowOpacity: 0.08,
     shadowRadius: 8,
@@ -57,11 +78,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#111827',
   },
   category: {
     fontSize: 12,
-    color: '#2563eb',
     textTransform: 'capitalize',
     marginTop: 2,
   },
@@ -73,15 +92,12 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#16a34a',
   },
   rating: {
     fontSize: 13,
-    color: '#6b7280',
   },
   description: {
     fontSize: 12,
-    color: '#6b7280',
     lineHeight: 17,
   },
 });
